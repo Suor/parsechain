@@ -150,7 +150,7 @@ class Ops:
     texts = lambda els: [el.text for el in els]
     tail = _list_first(lambda el: el.tail)
     attr = lambda name: _list_first(lambda el: el.attrib.get(name))
-    attrs = lambda name: lambda els: [el.attrib.get(name) for el in seld]
+    attrs = lambda name: lambda els: [el.attrib.get(name) for el in els]
 
     @_list_first
     def head(el):
