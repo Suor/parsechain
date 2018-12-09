@@ -1,8 +1,9 @@
 import re
 import datetime
+from collections import Mapping, Sequence
 
 from funcy import first, second, last, walk_values, flip, re_find, silent, juxt, notnone, \
-    lmap, lmapcat, ldistinct, lcat, curry, re_finder, is_mapping
+    lmap, lmapcat, ldistinct, lcat, re_finder, is_mapping
 import lxml.html
 
 
@@ -173,7 +174,10 @@ class Ops:
 
     # Data utils
     len = len
-    map = curry(lmap, n=2)
+    def map(f):
+        if isinstance(f, (Mapping, Sequence)):
+            f = C.multi(f)
+        return lambda els: lmap(f, els)
 
     # Data cleaning
     float = float
