@@ -1,3 +1,5 @@
+from collections import Iterator
+import lxml.html
 from .chains import Ops
 
 

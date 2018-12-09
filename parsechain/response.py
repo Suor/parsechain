@@ -1,5 +1,3 @@
-from collections import Iterator
-
 from funcy import cached_property
 import lxml.html
 
