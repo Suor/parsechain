@@ -137,7 +137,7 @@ class Ops:
         return C.css(f'[itemprop={name}]')
 
     def microdata(name):
-        return C.css(f'[itemprop={name}]').lmap(C.attr('content') | C.inner_text)
+        return C.css(f'[itemprop={name}]').map(C.attr('content') | C.inner_text)
 
     # Select
     def get(els):
