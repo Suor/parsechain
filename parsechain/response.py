@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from funcy import cached_property
 import lxml.html
 
@@ -28,6 +30,10 @@ class Response:
         url = self.url[:47] + '...' if self.url and len(self.url) > 50 else self.url
         return 'Response(%s, %s %s, %d chars)' % (self.status, self.method, url, len(self.body))
     __repr__ = __str__
+
+    def abs(self, url):
+        """Construct an absolute url relative to page one"""
+        return urljoin(self.url, url)
 
     @cached_property
     def root(self):
