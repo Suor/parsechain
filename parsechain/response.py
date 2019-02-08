@@ -25,7 +25,6 @@ class Response:
         else:
             raise TypeError("Can't cast from %s" % (response.__class__.__name__))
 
-
     def __str__(self):
         url = self.url[:47] + '...' if self.url and len(self.url) > 50 else self.url
         return 'Response(%s, %s %s, %d chars)' % (self.status, self.method, url, len(self.body))
@@ -44,5 +43,3 @@ class Response:
 
     def xpath(self, query, **params):
         return self.root.xpath(query, **params)
-
-
