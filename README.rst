@@ -1,5 +1,5 @@
-ParseChains |Build Status|
-===========
+ParseChain |Build Status|
+==========
 
 A way to parse html fluently and as declarative as possible. This is in **alpha stage** now, things will change.
 
