@@ -1,2 +1,11 @@
+0.0.2
+- made C.multi() automatically map colls
+- added Response.abs()
+- fixed C.map() with callable collections
+- fixed C.microdata()
+- fixed C.attrs
+- stopped chaining on special and private names
+- better error messages
+
 0.0.1
 - initial version
