@@ -59,6 +59,8 @@ class Chain(tuple):
             return Chain(head + [Link(last.func, name=last.name, args=args)])
 
     def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError(f'No attribute {name} on chain')
         if not hasattr(Ops, name):
             raise ValueError(f'Unknown op {name}')
         return self + Link(getattr(Ops, name), name=name)
