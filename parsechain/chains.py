@@ -7,6 +7,10 @@ from funcy import first, second, last, walk_values, flip, re_find, silent, juxt,
 import lxml.html
 
 
+class ChainError(Exception):
+    pass
+
+
 class Link:
     def __init__(self, func, *, args=None, name=None):
         assert not isinstance(func, (Link, Chain))
@@ -45,12 +49,10 @@ class Chain(tuple):
                     return None
                 try:
                     value = link(value)
-                except Exception:
+                except Exception as e:
                     if isinstance(value, lxml.html.HtmlElement):
                         value = re.sub(r'\s+', ' ', Ops.outer_html(value))[:100]
-                    print(f'Chain: {link} failed with {value}.')
-                    # import ipdb; ipdb.set_trace()
-                    raise
+                    raise ChainError(f'Link .{link} failed on {value} in {self}.') from e
             return value
         else:
             *head, last = self
