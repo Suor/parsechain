@@ -70,6 +70,7 @@ class Chain(tuple):
         # return Chain((('(%s | %s)' % (self, other), notnone_fn(self, other)),))
         return C.call(notnone_fn)(self, other)
 
+    # TODO: think of better opertor for composition, maybe "/"?
     def __add__(self, other):
         if isinstance(other, Link):
             other = (other,)
@@ -170,6 +171,7 @@ class Ops:
     # Text utils
     strip = lambda text: text.strip()
     clean = lambda dirt: lambda text: text.strip(dirt)
+    normalize_whitespace = lambda text: re.sub(r'\s+', ' ', text).strip()
     split = lambda by: lambda text: text.split(by)
     re = re_finder
 
@@ -179,7 +181,7 @@ class Ops:
     # Data utils
     len = len
     def map(f):
-        if isinstance(f, (Mapping, Sequence)):
+        if not callable(f) and isinstance(f, (Mapping, Sequence)):
             f = C.multi(f)
         return lambda els: lmap(f, els)
 
