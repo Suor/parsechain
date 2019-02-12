@@ -47,7 +47,6 @@ class Chain(tuple):
             *head, last = self
             return Chain(head + [Link(last.func, name=last.name, args=args)])
         else:
-            print('ARGS', args, self)
             value, = args
             for link in self:
                 # print(f'Calling {name} on {value}...')
