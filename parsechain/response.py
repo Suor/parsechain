@@ -1,6 +1,7 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, parse_qsl
 
 from funcy import cached_property
+from multidict import MultiDict, MultiDictProxy
 import lxml.html
 
 from .wrappers import make_chainy
@@ -33,6 +34,20 @@ class Response:
     def abs(self, url):
         """Construct an absolute url relative to page one"""
         return urljoin(self.url, url)
+
+    # Urlparse accessors
+
+    # TODO: make these read-only
+    @cached_property
+    def parsed_url(self):
+        return urlparse(self.url)
+
+    @cached_property
+    def query(self):
+        ret = MultiDict(parse_qsl(self.parsed_url.query, keep_blank_values=True))
+        return MultiDictProxy(ret)
+
+    # Parsing methods
 
     @cached_property
     def root(self):

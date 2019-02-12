@@ -19,6 +19,7 @@ setup(
 
     install_requires=[
         'funcy>=1.10.2,<2.0',
+        'multidict',
         'lxml',
         'cssselect',
     ],
