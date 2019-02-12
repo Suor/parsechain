@@ -37,12 +37,12 @@ def make_chainy(value):
 
 
 def make_chainy_op(name, func):
-    if name in Ops.NO_ARGS:
-        def wrapper(self):
-            return make_chainy(func(self))
-    else:
+    if getattr(func, 'has_args', False):
         def wrapper(self, *args, **kwargs):
             return make_chainy(func(*args, **kwargs)(self))
+    else:
+        def wrapper(self):
+            return make_chainy(func(self))
 
     wrapper.__qualname__ = 'Chainy.' + name
     wrapper.__name__ = name

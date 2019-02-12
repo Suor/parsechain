@@ -26,7 +26,8 @@ class Link:
     def __str__(self):
         result = self.name or self.func.__name__
         if self.args is not None:
-            result += f'({", ".join(map(repr, self.args))})'
+            args_repr = '...' if self.args is ... else ", ".join(map(repr, self.args))
+            result += f'({args_repr})'
         return result
 
     def __repr__(self):
@@ -40,8 +41,12 @@ class Chain(tuple):
     __name__ = property(__str__)
 
     def __call__(self, *args):
-        # TODO: better check. Base it on function not on arg.
-        if len(args) == 1 and is_elements(args[0]):
+        # Rebuild the chain if waiting for args
+        if self and self[-1].args is ...:
+            *head, last = self
+            return Chain(head + [Link(last.func, name=last.name, args=args)])
+        else:
+            print('ARGS', args, self)
             value, = args
             for link in self:
                 # print(f'Calling {name} on {value}...')
@@ -54,23 +59,23 @@ class Chain(tuple):
                         value = re.sub(r'\s+', ' ', Ops.outer_html(value))[:100]
                     raise ChainError(f'Link .{link} failed on {value} in {self}.') from e
             return value
-        else:
-            *head, last = self
-            return Chain(head + [Link(last.func, name=last.name, args=args)])
 
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError(f'No attribute {name} on chain')
         if not hasattr(Ops, name):
             raise ValueError(f'Unknown op {name}')
-        return self + Link(getattr(Ops, name), name=name)
+
+        # Add new link and mark args as waiting for filling in if function has them
+        func = getattr(Ops, name)
+        has_args = getattr(func, 'has_args', False)
+        return self + Link(func, name=name, args=... if has_args else None)
 
     def __or__(self, other):
         # TODO: nicer repr for this?
         # return Chain((('(%s | %s)' % (self, other), notnone_fn(self, other)),))
-        return C.call(notnone_fn)(self, other)
+        return Chain((Link(notnone_fn, args=(self, other)),))
 
-    # TODO: think of better opertor for composition, maybe "/"?
     def __add__(self, other):
         if isinstance(other, Link):
             other = (other,)
@@ -91,18 +96,16 @@ C = Chain()
 
 # Chain implementation helpers
 
+def has_args(func):
+    # Wrap functions from other modules or just mark directly local ones
+    if hasattr(func, '__module__', None) != __name__:
+        func = wraps(func)(lambda *a, **kw: func(*a, **kw))
+    func.has_args = True
+    return func
+
 def is_elements(arg):
     return isinstance(arg, lxml.html.HtmlElement) or \
         isinstance(arg, list) and arg and all(isinstance(el, lxml.html.HtmlElement) for el in arg)
-
-def multi(coll):
-    def make_apply(el):
-        return lambda f: f(el) if callable(f) else f
-
-    if is_mapping(coll):
-        return lambda el: walk_values(make_apply(el), coll)
-    else:
-        return lambda el: lmap(make_apply(el), coll)
 
 def notnone_fn(*funcs):
     return lambda val: first(filter(notnone, juxt(*funcs)(val)))
@@ -120,23 +123,35 @@ def _list_map(func):
     return lambda els: lmap(func, els) if isinstance(els, list) else func(els)
 
 class Ops:
-    const = lambda x: lambda _: x
-    multi = multi
+    const = has_args(lambda x: lambda _: x)
+
+    @has_args
+    def multi(coll):
+        def make_apply(el):
+            return lambda f: f(el) if callable(f) else f
+
+        if is_mapping(coll):
+            return lambda el: walk_values(make_apply(el), coll)
+        else:
+            return lambda el: lmap(make_apply(el), coll)
 
     # Traverse
-    css = lambda selector: _list_mapcat(lambda el: el.cssselect(selector))
-    xpath = lambda query, **params: _list_mapcat(lambda el: el.xpath(query, **params))
+    css = has_args(lambda selector: _list_mapcat(lambda el: el.cssselect(selector)))
+    xpath = has_args(lambda query, **params: _list_mapcat(lambda el: el.xpath(query, **params)))
     parent = _list_map(lambda el: el.getparent())
     prev = _list_map(lambda el: el.getprevious())
     next = _list_map(lambda el: el.next())
 
     # Microdata
+    @has_args
     def itemscope(name):
         return C.css(f'[itemscope][itemprop={name}]')
 
+    @has_args
     def itemprop(name):
         return C.css(f'[itemprop={name}]')
 
+    @has_args
     def microdata(name):
         return C.css(f'[itemprop={name}]').map(C.attr('content') | C.inner_text)
 
@@ -155,8 +170,8 @@ class Ops:
     text = _list_first(lambda el: el.text)
     texts = lambda els: [el.text for el in els]
     tail = _list_first(lambda el: el.tail)
-    attr = lambda name: _list_first(lambda el: el.attrib.get(name))
-    attrs = lambda name: lambda els: [el.attrib.get(name) for el in els]
+    attr = has_args(lambda name: _list_first(lambda el: el.attrib.get(name)))
+    attrs = has_args(lambda name: lambda els: [el.attrib.get(name) for el in els])
 
     @_list_first
     def head(el):
@@ -170,16 +185,19 @@ class Ops:
 
     # Text utils
     strip = lambda text: text.strip()
-    clean = lambda dirt: lambda text: text.strip(dirt)
+    clean = has_args(lambda dirt: lambda text: text.strip(dirt))
     normalize_whitespace = lambda text: re.sub(r'\s+', ' ', text).strip()
-    split = lambda by: lambda text: text.split(by)
-    re = re_finder
+    split = has_args(lambda by: lambda text: text.split(by))
+    re = has_args(re_finder)
 
+    @has_args
     def re_sub(pattern, repl, count=0, flags=0):
         return lambda text: re.sub(pattern, repl, text, count=count, flags=flags)
 
     # Data utils
     len = len
+
+    @has_args
     def map(f):
         if not callable(f) and isinstance(f, (Mapping, Sequence)):
             f = C.multi(f)
@@ -216,10 +234,6 @@ class Ops:
                     return None
                 return (days * 24 + hours * 60 + minutes) * 60 + seconds
                 # return datetime.timedelta(days=days, hours=hours, minutes=minutes)
-
-    NO_ARGS = {'parent', 'prev', 'next', 'get', 'first', 'second', 'last',
-               'text', 'texts', 'tail', 'head', 'inner_text', 'inner_html', 'outer_html',
-               'strip', 'len', 'float', 'int', 'clean_float', 'clean_int', 'date', 'duration'}
 
 
 # Chain.register('float', _list_first(float))
