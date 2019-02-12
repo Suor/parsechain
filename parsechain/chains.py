@@ -1,6 +1,7 @@
 import re
 import datetime
 from collections import Mapping, Sequence
+from functools import wraps
 
 from funcy import first, second, last, walk_values, flip, re_find, silent, juxt, notnone, \
     lmap, lmapcat, ldistinct, lcat, re_finder, is_mapping
@@ -98,7 +99,7 @@ C = Chain()
 
 def has_args(func):
     # Wrap functions from other modules or just mark directly local ones
-    if hasattr(func, '__module__', None) != __name__:
+    if getattr(func, '__module__', None) != __name__:
         func = wraps(func)(lambda *a, **kw: func(*a, **kw))
     func.has_args = True
     return func
