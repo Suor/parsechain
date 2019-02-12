@@ -28,7 +28,7 @@ Usage
     rating = response.css('.left-box').inner_text.re(r'IMDb: ([\d.]+)').float
 
     # Or both
-    movie = response.multi({
+    movie = response.root.multi({
         'title': C.css('h1 .title').text,
         'rating': C.css('.left-box').inner_text.re(r'IMDb: ([\d.]+)').float,
     })
