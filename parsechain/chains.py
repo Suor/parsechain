@@ -184,8 +184,8 @@ class Ops:
     outer_html = _list_first(lambda el: lxml.html.tostring(el, encoding='unicode'))
 
     # Text utils
-    strip = lambda text: text.strip()
-    clean = has_args(lambda dirt: lambda text: text.strip(dirt))
+    trim = lambda text: text.strip()
+    strip = has_args(lambda dirt: lambda text: text.strip(dirt))
     normalize_whitespace = lambda text: re.sub(r'\s+', ' ', text).strip()
     split = has_args(lambda by: lambda text: text.split(by))
     re = has_args(re_finder)

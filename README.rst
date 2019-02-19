@@ -45,7 +45,7 @@ The last example could be extended to show chains reuse:
     parse_movie = C.multi({
         'title': C.css('h1 .title').text,
         'rating': by_label('IMDb').float,
-        'status': by_label('Status').strip,
+        'status': by_label('Status').trim,
     })
 
     movie = parse_movie(response.root)  # Pass a root of a tree
