@@ -54,3 +54,6 @@ for name, func in Ops.__dict__.items():
     if name.startswith('_') or not callable(func):
         continue
     setattr(Chainy, name, make_chainy_op(name, func))
+
+# Overwrite this to pass through chaininess
+ChainyStr.strip = make_chainy_op('strip', Ops.strip)

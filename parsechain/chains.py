@@ -99,9 +99,11 @@ C = Chain()
 def has_args(func):
     # Wrap functions from other modules or just mark directly local ones
     if getattr(func, '__module__', None) != __name__:
-        func = wraps(func)(lambda *a, **kw: func(*a, **kw))
-    func.has_args = True
-    return func
+        wrapper = wraps(func)(lambda *a, **kw: func(*a, **kw))
+    else:
+        wrapper = func
+    wrapper.has_args = True
+    return wrapper
 
 def is_elements(arg):
     return isinstance(arg, lxml.html.HtmlElement) or \
@@ -184,8 +186,9 @@ class Ops:
     outer_html = _list_first(lambda el: lxml.html.tostring(el, encoding='unicode'))
 
     # Text utils
-    trim = lambda text: text.strip()
-    strip = has_args(lambda dirt: lambda text: text.strip(dirt))
+    # TODO: make these two work with bytes?
+    trim = lambda text: str.strip(text)
+    strip = has_args(lambda dirt=None: lambda text: str.strip(text, dirt))
     normalize_whitespace = lambda text: re.sub(r'\s+', ' ', text).strip()
     split = has_args(lambda by: lambda text: text.split(by))
     re = has_args(re_finder)
