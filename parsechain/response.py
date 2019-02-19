@@ -1,6 +1,6 @@
-from urllib.parse import urljoin, urlparse, parse_qsl
+from urllib.parse import urljoin, urlparse, parse_qsl, urlunparse, urlencode
 
-from funcy import cached_property
+from funcy import cached_property, merge
 from multidict import MultiDict, MultiDictProxy
 import lxml.html
 
@@ -31,11 +31,17 @@ class Response:
         return 'Response(%s, %s %s, %d chars)' % (self.status, self.method, url, len(self.body))
     __repr__ = __str__
 
+
+    # Url manipulatoin
+
     def abs(self, url):
         """Construct an absolute url relative to page one"""
         return urljoin(self.url, url)
 
-    # Urlparse accessors
+    def with_params(self, **params):
+        """Conctruct an url with params replaced"""
+        query = urlencode(merge(self.query, params), doseq=True)
+        return urlunparse(self.parsed_url._replace(query=query))
 
     # TODO: make these read-only
     @cached_property
@@ -43,9 +49,14 @@ class Response:
         return urlparse(self.url)
 
     @cached_property
+    def base_url(self):
+        return urlunparse(self.parsed_url._replace(query=''))
+
+    @cached_property
     def query(self):
         ret = MultiDict(parse_qsl(self.parsed_url.query, keep_blank_values=True))
         return MultiDictProxy(ret)
+
 
     # Parsing methods
 
