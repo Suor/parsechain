@@ -40,12 +40,13 @@ def make_chainy_op(name, func):
     if getattr(func, 'has_args', False):
         def wrapper(self, *args, **kwargs):
             return make_chainy(func(*args, **kwargs)(self))
+        wrapper.__qualname__ = 'Chainy.' + name
+        wrapper.__name__ = name
     else:
+        @property
         def wrapper(self):
             return make_chainy(func(self))
 
-    wrapper.__qualname__ = 'Chainy.' + name
-    wrapper.__name__ = name
     return wrapper
 
 
