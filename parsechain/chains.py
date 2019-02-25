@@ -5,6 +5,7 @@ from functools import wraps
 
 from funcy import first, second, last, walk_values, flip, re_find, silent, juxt, notnone, \
     lmap, lmapcat, ldistinct, lcat, re_finder, is_mapping
+import dateparser
 import lxml.html
 
 
@@ -212,14 +213,7 @@ class Ops:
     clean_float = lambda text: float(re.sub(r'[^\d,.]', '', text).replace(',', '.'))
     clean_int = lambda text: int(re.sub(r'\D', '', text))
 
-    def date(text):
-        months = 'январ феврал март апрел ма июн июл август сентябр октябр ноябр декабр'
-        months = dict(flip(enumerate(months.split(), start=1)))
-
-        m = re_find(r'(\d+)\s+(\w+)\s+(\d+)', text)
-        if m:
-            day, month, year = m
-            return datetime.date(int(year), months[month[:-1]], int(day))
+    date = dateparser.parse
 
     def duration(text):
         regexes = [

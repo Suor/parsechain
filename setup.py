@@ -22,6 +22,7 @@ setup(
         'multidict',
         'lxml',
         'cssselect',
+        'dateparser',
     ],
     packages=['parsechain'],
 
