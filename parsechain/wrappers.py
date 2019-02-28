@@ -7,7 +7,8 @@ __all__ = ['make_chainy']
 
 
 class Chainy:
-    pass
+    def call(self, func):
+       return make_chainy(func(self))
 
 class ChainyList(list, Chainy):
     pass
