@@ -143,7 +143,7 @@ class Ops:
     xpath = has_args(lambda query, **params: _list_mapcat(lambda el: el.xpath(query, **params)))
     parent = _list_map(lambda el: el.getparent())
     prev = _list_map(lambda el: el.getprevious())
-    next = _list_map(lambda el: el.next())
+    next = _list_map(lambda el: el.getnext())
 
     # Microdata
     @has_args
