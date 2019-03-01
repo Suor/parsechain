@@ -190,7 +190,7 @@ class Ops:
     # TODO: make these two work with bytes?
     trim = lambda text: str.strip(text)
     strip = has_args(lambda dirt=None: lambda text: str.strip(text, dirt))
-    normalize_whitespace = lambda text: re.sub(r'\s+', ' ', text).strip()
+    normspace = normalize_whitespace = lambda text: re.sub(r'\s+', ' ', text).strip()
     split = has_args(lambda by: lambda text: text.split(by))
     re = has_args(re_finder)
 
