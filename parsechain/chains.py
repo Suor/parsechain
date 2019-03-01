@@ -148,15 +148,15 @@ class Ops:
     # Microdata
     @has_args
     def itemscope(name):
-        return C.css(f'[itemscope][itemprop={name}]')
+        return C.css(f'[itemscope][itemprop*={name}]')
 
     @has_args
     def itemprop(name):
-        return C.css(f'[itemprop={name}]')
+        return C.css(f'[itemprop*={name}]')
 
     @has_args
     def microdata(name):
-        return C.css(f'[itemprop={name}]').map(C.attr('content') | C.inner_text)
+        return C.css(f'[itemprop*={name}]').map(C.attr('content') | C.inner_text)
 
     # Select
     def get(els):
