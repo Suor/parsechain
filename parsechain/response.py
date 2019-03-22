@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urljoin, urlparse, parse_qsl, urlunparse, urlencode
 
 from funcy import cached_property, merge
@@ -59,6 +60,10 @@ class Response:
 
 
     # Parsing methods
+
+    @cached_property
+    def json(self):
+        return json.loads(self.body)
 
     @cached_property
     def root(self):
