@@ -168,6 +168,7 @@ class Ops:
     first = first
     second = second
     last = last
+    slice = has_args(lambda start, stop=None, step=None: lambda val: val[slice(start, stop, step)])
 
     # Access
     text = _list_first(lambda el: el.text)
