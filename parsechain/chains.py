@@ -187,6 +187,18 @@ class Ops:
                              ''.join(lxml.html.tostring(sub, encoding='unicode') for sub in el))
     outer_html = _list_first(lambda el: lxml.html.tostring(el, encoding='unicode'))
 
+    @_list_first
+    def html_to_text(html):
+        """Cleans html preserving newlines"""
+        if isinstance(html, lxml.html.HtmlElement):
+            html = Ops.inner_html(html)
+
+        html = re.sub(r'\s+', ' ', html).strip()
+        html = re.sub(r'<br[^>]*>|</li>', '\n', html, flags=re.I)
+        if not html or html.isspace():
+            return ''
+        return lxml.html.tostring(lxml.html.fromstring(html), encoding='unicode', method='text')
+
     # Text utils
     # TODO: make these two work with bytes?
     trim = lambda text: str.strip(text)
