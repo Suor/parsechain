@@ -195,6 +195,7 @@ class Ops:
 
         html = re.sub(r'\s+', ' ', html).strip()
         html = re.sub(r'<br[^>]*>|</li>', '\n', html, flags=re.I)
+        html = re.sub(r'</p>', '\n\n', html, flags=re.I)
         if not html or html.isspace():
             return ''
         return lxml.html.tostring(lxml.html.fromstring(html), encoding='unicode', method='text')
