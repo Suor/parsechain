@@ -33,7 +33,7 @@ class Response:
     __repr__ = __str__
 
 
-    # Url manipulatoin
+    # Url manipulation
 
     def abs(self, url):
         """Construct an absolute url relative to page one"""
