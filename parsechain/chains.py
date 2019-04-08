@@ -14,22 +14,27 @@ class ChainError(Exception):
 
 
 class Link:
-    def __init__(self, func, *, args=None, name=None):
+    def __init__(self, func, *, args=None, kwargs=None, name=None):
         assert not isinstance(func, (Link, Chain))
         assert callable(func)
         self.name = name
         self.func = func
         self.args = args
+        self.kwargs = kwargs or {}
 
     def __call__(self, *args):
-        func = self.func if self.args is None else self.func(*self.args)
+        func = self.func if self.args is None else self.func(*self.args, **self.kwargs)
         return func(*args)
 
     def __str__(self):
         result = self.name or self.func.__name__
+        args_reprs = []
         if self.args is not None:
-            args_repr = '...' if self.args is ... else ", ".join(map(repr, self.args))
-            result += f'({args_repr})'
+            args_reprs.extend(['...'] if self.args is ... else map(repr, self.args))
+        if self.kwargs:
+            args_reprs.extend(f'{name}={repr(value)}' for name, value in kwargs.items())
+        if args_reprs:
+            result += f'({", ".join(args_reprs)})'
         return result
 
     def __repr__(self):
@@ -42,15 +47,15 @@ class Chain(tuple):
     __str__ = __repr__
     __name__ = property(__str__)
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
         # Rebuild the chain if waiting for args
         if self and self[-1].args is ...:
             *head, last = self
-            return Chain(head + [Link(last.func, name=last.name, args=args)])
+            return Chain(head + [Link(last.func, name=last.name, args=args, kwargs=kwargs)])
         else:
+            assert len(args) == 1 and not kwargs, "Expecting single value to rpocess by chain"
             value, = args
             for link in self:
-                # print(f'Calling {name} on {value}...')
                 if value is None:
                     return None
                 try:
