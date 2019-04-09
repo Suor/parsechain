@@ -5,7 +5,7 @@ from collections import Mapping, Sequence
 from functools import wraps
 
 from funcy import first, second, last, walk_values, flip, re_find, silent, juxt, notnone, \
-    lmap, lmapcat, ldistinct, lcat, re_finder, is_mapping
+    lmap, lmapcat, ldistinct, lcat, re_finder, is_mapping, lfilter
 import dateparser
 import lxml.html
 
@@ -230,6 +230,7 @@ class Ops:
         if not callable(f) and isinstance(f, (Mapping, Sequence)):
             f = C.multi(f)
         return lambda els: lmap(f, els)
+    filter = has_args(lambda pred: lambda seq: lfilter(pred, seq))
 
     # Data cleaning
     float = float
