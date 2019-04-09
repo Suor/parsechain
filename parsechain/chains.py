@@ -1,3 +1,4 @@
+import json
 import re
 import datetime
 from collections import Mapping, Sequence
@@ -162,6 +163,10 @@ class Ops:
     @has_args
     def microdata(name):
         return C.css(f'[itemprop*={name}]').map(C.attr('content') | C.inner_text)
+
+    def ld(node):
+        text = C.css('script[type="application/ld+json"]').inner_text(node)
+        return json.loads(text)
 
     # Select
     def get(els):
