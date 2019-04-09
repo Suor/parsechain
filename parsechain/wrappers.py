@@ -46,6 +46,7 @@ def make_chainy_op(name, func):
     else:
         @property
         def wrapper(self):
+            # TODO: should I make a better error here? Like in chains.
             return make_chainy(func(self))
 
     return wrapper
