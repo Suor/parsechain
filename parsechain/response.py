@@ -23,7 +23,7 @@ class Response:
         if hasattr(response, 'request'):
             return cls(method=response.request.method, url=response.request.url,
                        status=response.status_code, reason=response.reason,
-                       body=response.text, headers=res.headers)
+                       body=response.text, headers=response.headers)
         else:
             raise TypeError("Can't cast from %s" % (response.__class__.__name__))
 
