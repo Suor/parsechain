@@ -23,6 +23,7 @@ setup(
         'lxml',
         'cssselect',
         'dateparser',
+        'demjson',
     ],
     packages=['parsechain'],
 

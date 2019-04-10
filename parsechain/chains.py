@@ -166,7 +166,15 @@ class Ops:
 
     def ld(node):
         text = C.css('script[type="application/ld+json"]').inner_text(node)
-        return json.loads(text)
+        try:
+            return json.loads(text)
+        except ValueError as e:
+            try:
+                # Try parsing non-strict
+                import demjson
+                return demjson.decode(text)
+            except:
+                raise e  # reraise first one
 
     # Select
     def get(els):
