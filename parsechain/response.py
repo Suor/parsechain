@@ -1,7 +1,8 @@
+import inspect
 import json
 from urllib.parse import urljoin, urlparse, parse_qsl, urlunparse, urlencode
 
-from funcy import cached_property, merge
+from funcy import cached_property, merge, project
 from multidict import MultiDict, MultiDictProxy
 import lxml.html
 
@@ -31,6 +32,10 @@ class Response:
         url = self.url[:47] + '...' if self.url and len(self.url) > 50 else self.url
         return 'Response(%s, %s %s, %d chars)' % (self.status, self.method, url, len(self.body))
     __repr__ = __str__
+
+    def __reduce__(self):
+        params = list(inspect.signature(self.__class__).parameters)
+        return (self.__class__, (), project(self.__dict__, params))
 
 
     # Url manipulation
