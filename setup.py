@@ -8,7 +8,7 @@ README = open('README.rst').read()    \
 
 setup(
     name='parsechain',
-    version='0.0.2',
+    version='0.0.3',
     author='Alexander Schepanovski',
     author_email='suor.web@gmail.com',
 

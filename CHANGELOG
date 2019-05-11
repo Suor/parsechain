@@ -1,3 +1,21 @@
+0.0.3
+- added Ops.filter
+- added html_to_text op
+- added slice op
+- added Response.json
+- added with_args and friends to Response
+- added .call() to Chainy*
+- parse json linked data
+- use dateparser to parse dates
+- alias Ops.normspace = Ops.normalize_whitespace
+- renamed strip -> trim, clean -> strip
+- run no-args ops on chainy objects without ()
+- made ChainyStr.strip() preserve class
+- made Response picklable
+- fixed Ops.microdata and friends
+- fixed Ops.next
+- manage chaining with args better
+
 0.0.2
 - made C.multi() automatically map colls
 - added Response.abs()
